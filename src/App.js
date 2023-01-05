@@ -1,6 +1,20 @@
 import React, { useEffect, useState, useTransition } from "react";
 
-const LIST_SIZE = 30000;
+const LIST_SIZE = 10000;
+
+function DeferredList({ input }) {
+	const list = [];
+
+	for (let i = 0; i < LIST_SIZE; i++) {
+		list.push(<li key={ i }>{ input }</li>);
+	}
+
+	return (
+		<ul>
+			{list}
+		</ul>
+	)
+}
 
 function App() {
 	const [ input, setInput ] = useState('');
@@ -38,13 +52,15 @@ function App() {
 		<div>
 			<input type="text" onChange={ handleInputChange } value={ input }/>
 
-			<ul>
-				{ isTransitionPending ? (
-					<p>Transition is pending...</p>
-				) : ( list.map((item, index) => (
-					<li key={ index }>{ item }</li>
-				)) ) }
-			</ul>
+			{/*<ul>*/}
+			{/*	{ isTransitionPending ? (*/}
+			{/*		<p>Transition is pending...</p>*/}
+			{/*	) : ( list.map((item, index) => (*/}
+			{/*		<li key={ index }>{ item }</li>*/}
+			{/*	)) ) }*/}
+			{/*</ul>*/}
+
+			<DeferredList input={input} />
 		</div>
 	);
 }
