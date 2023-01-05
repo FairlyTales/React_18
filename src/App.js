@@ -1,19 +1,30 @@
-import React, { useEffect, useState, useTransition } from "react";
+import React, { useDeferredValue, useEffect, useMemo, useState, useTransition } from "react";
 
 const LIST_SIZE = 10000;
 
 function DeferredList({ input }) {
-	const list = [];
+	// marks this value updates as low priority and defers the updates if there are high priority updates pending
+	const deferredInput = useDeferredValue(input);
 
-	for (let i = 0; i < LIST_SIZE; i++) {
-		list.push(<li key={ i }>{ input }</li>);
-	}
+	useEffect(() => {
+		console.log(`input: ${ input }`);
+		console.log(`deferredInput: ${ deferredInput }`);
+	}, [ input, deferredInput ]);
 
-	return (
-		<ul>
-			{list}
-		</ul>
-	)
+
+	return useMemo(() => {
+		const newList = [];
+
+		for (let i = 0; i < LIST_SIZE; i++) {
+			newList.push(<li key={ i }>{ deferredInput }</li>);
+		}
+
+		return (
+			<ul>
+				{ newList }
+			</ul>
+		)
+	}, [ deferredInput ]);
 }
 
 function App() {
@@ -52,15 +63,15 @@ function App() {
 		<div>
 			<input type="text" onChange={ handleInputChange } value={ input }/>
 
-			{/*<ul>*/}
-			{/*	{ isTransitionPending ? (*/}
-			{/*		<p>Transition is pending...</p>*/}
-			{/*	) : ( list.map((item, index) => (*/}
-			{/*		<li key={ index }>{ item }</li>*/}
-			{/*	)) ) }*/}
-			{/*</ul>*/}
+			{/*<ul>*/ }
+			{/*	{ isTransitionPending ? (*/ }
+			{/*		<p>Transition is pending...</p>*/ }
+			{/*	) : ( list.map((item, index) => (*/ }
+			{/*		<li key={ index }>{ item }</li>*/ }
+			{/*	)) ) }*/ }
+			{/*</ul>*/ }
 
-			<DeferredList input={input} />
+			<DeferredList input={ input }/>
 		</div>
 	);
 }
