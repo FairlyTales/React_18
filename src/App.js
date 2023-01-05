@@ -1,32 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 
-const LIST_SIZE = 10000;
+const LIST_SIZE = 30000;
 
 function App() {
 	const [ input, setInput ] = useState('');
 	const [ list, setList ] = useState([]);
+	const [ isTransitionPending, startTransition ] = useTransition();
 
 	const handleInputChange = (e) => {
-		const newInput = e.target.value;
+		console.log('handler fired');
 
+		const newInput = e.target.value;
+		// high priority update - will be done immediately
 		setInput(newInput);
 
-		const newList = [];
-		for (let i = 0; i < LIST_SIZE; i++) {
-			newList.push(newInput);
-		}
+		// low priority update - will be postponed if new high priority update is pending
+		startTransition(() => {
+			console.log('transition fired');
 
-		setList(newList);
+			const newList = [];
+			for (let i = 0; i < LIST_SIZE; i++) {
+				newList.push(newInput);
+			}
+			setList(newList);
+		})
 	}
+
+	useEffect(() => {
+		console.log(`transition is pending: ${ isTransitionPending }`);
+	}, [ isTransitionPending ]);
+
+	useEffect(() => {
+		console.log('transition is finished');
+	}, [ list ]);
 
 	return (
 		<div>
 			<input type="text" onChange={ handleInputChange } value={ input }/>
 
 			<ul>
-				{ list.map((item, index) => (
-					<li key={index}>{ item }</li>
-				)) }
+				{ isTransitionPending ? (
+					<p>Transition is pending...</p>
+				) : ( list.map((item, index) => (
+					<li key={ index }>{ item }</li>
+				)) ) }
 			</ul>
 		</div>
 	);
